@@ -1,15 +1,12 @@
 #!/usr/bin/python
 import time
 import datetime
-import pytz
 import numpy
 import random
 import gzip
-import zipfile
 import sys
 import argparse
 from faker import Faker
-from random import randrange
 from tzlocal import get_localzone
 local = get_localzone()
 
@@ -78,20 +75,31 @@ resources=["/list","/wp-content","/wp-admin","/explore","/search/tag/list","/app
 
 ualist = [faker.firefox, faker.chrome, faker.safari, faker.internet_explorer, faker.opera]
 
+ip_list = [faker.ipv4() for _ in range(1000)]
+
+def comprueba_noche(dt):
+    empieza_noche = 22
+    empieza_dia = 7
+    
+    return dt.hour > empieza_noche or dt.hour < empieza_dia
+
 flag = True
 while (flag):
     if args.sleep:
         increment = datetime.timedelta(seconds=args.sleep)
     else:
-        increment = datetime.timedelta(seconds=random.randint(30, 300))
+        es_noche = comprueba_noche(otime)
+        rango_min = 90 if es_noche else 30
+        rango_max = 500 if es_noche else 300
+        increment = datetime.timedelta(seconds=random.randint(rango_min, rango_max))
     otime += increment
 
-    ip = faker.ipv4()
+    ip = random.choice(ip_list)
     dt = otime.strftime('%d/%b/%Y:%H:%M:%S')
     tz = datetime.datetime.now(local).strftime('%z')
     vrb = numpy.random.choice(verb,p=[0.6,0.1,0.1,0.2])
 
-    uri = random.choice(resources)
+    uri = numpy.random.choice(resources, p=[0.184, 0.029, 0.029, 0.29, 0.117, 0.117, 0.117, 0.117])
     if uri.find("apps")>0:
         uri += str(random.randint(1000,10000))
 
