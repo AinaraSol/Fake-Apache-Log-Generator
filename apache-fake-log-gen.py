@@ -67,7 +67,7 @@ for case in switch(output_type):
     if case():
         f = sys.stdout
 
-response=["200","404","500","301"]
+response=["200","404","301","500", None]
 
 verb=["GET","POST","DELETE","PUT"]
 
@@ -83,8 +83,20 @@ def comprueba_noche(dt):
     
     return dt.hour > empieza_noche or dt.hour < empieza_dia
 
+def randomResponsePareto():
+    alpha = 2.5
+    indice = int(random.paretovariate(alpha)) - 1
+    indice = min(indice, 3)
+    return response[indice]
+
+
 flag = True
 while (flag):
+
+    resp = randomResponsePareto()
+    if not resp:
+        continue
+
     if args.sleep:
         increment = datetime.timedelta(seconds=args.sleep)
     else:
@@ -103,7 +115,6 @@ while (flag):
     if uri.find("apps")>0:
         uri += str(random.randint(1000,10000))
 
-    resp = numpy.random.choice(response,p=[0.9,0.04,0.02,0.04])
     byt = int(random.gauss(5000,50))
     referer = faker.uri()
     useragent = numpy.random.choice(ualist,p=[0.5,0.3,0.1,0.05,0.05] )()
